@@ -2,6 +2,7 @@ package utils
 
 import (
 	"bufio"
+	"errors"
 	"os"
 	"strconv"
 	"strings"
@@ -98,17 +99,23 @@ func CheckErrorP(err error) {
 	}
 }
 func ReadFileLinesForDay(day string, test bool) []string {
-	path := "./day" + day + "/input.txt"
+	path := "./input.txt"
+	if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
+		path = "./day" + day + "/input.txt"
+	}
 	if test {
-		path = "./day" + day + "/test.txt"
+		path = "./test.txt"
+		if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
+			path = "./day" + day + "/test.txt"
+		}
 	}
 	return ReadFileLines(path)
 }
 
 func ReadFileLines(name string) []string {
 	readFile, err := os.Open(name)
-	defer readFile.Close()
 	CheckErrorP(err)
+	defer readFile.Close()
 	fileScanner := bufio.NewScanner(readFile)
 	lines := make([]string, 0)
 	for fileScanner.Scan() {
